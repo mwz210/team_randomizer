@@ -1,8 +1,8 @@
-from fastapi import APIRouter  
-  
-from src.api.routes.bands import router as bands_router  
+from fastapi import APIRouter
 
-router = APIRouter()  
-  
-  
-router.include_router(bands_router, prefix="/bands")
+from src.api.routes.players import router as players_router
+
+router = APIRouter()
+
+
+router.include_router(players_router, prefix="/players")
