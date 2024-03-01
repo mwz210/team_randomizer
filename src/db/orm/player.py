@@ -1,15 +1,15 @@
-from typing import Optional
+from typing import Any, Optional
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from enum import Enum
 from pydantic import BaseModel
 
-SQL_BASE = declarative_base()
+SQL_BASE: Any = declarative_base()
 
 
 class PlayerDB(SQL_BASE):
-    __tablename__ = "players"
+    __tablename__: str = "players"
 
     id = Column(Integer, primary_key=True, index=True)
     first_name = Column(String, index=True)
