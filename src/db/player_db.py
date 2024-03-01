@@ -27,13 +27,7 @@ class PlayerRepository:  # Interface
     def save(self, player: Player) -> None:
         raise NotImplementedError()
 
-    def get_by_name(self, key: str) -> Optional[Player]:
-        raise NotImplementedError()
-
-    def get(self, player_filter: PlayerFilter) -> List[Player]:
-        raise NotImplementedError()
-
-    def get_all(self) -> List[Player]:
+    def get_all(self, player_filter: PlayerFilter) -> List[Player]:
         raise NotImplementedError()
 
 
@@ -53,53 +47,32 @@ class SQLPlayerRepository(PlayerRepository):  # SQL Implementation of interface
             raise e
 
     def save(self, player: Player) -> None:
-        name_split: List = player.name.split(" ")
         self._session.add(
             PlayerDB(
-                first_name=name_split[0],
-                last_name=name_split[1],
-                position=player.position,
+                first_name=player.first_name,
+                last_name=player.last_name,
+                position=player.player_type,
                 height=player.height,
             )
         )
 
-    def get_by_name(self, name: str) -> Optional[Player]:
-        instance: PlayerDB | None = (
-            self._session.query(PlayerDB).filter(PlayerDB.name == name).first()
-        )
-
-        if instance:
-            return Player()(key=instance.key, value=instance.value, done=instance.done)
-
-        return None
-
-    def get_all(self) -> List[PlayerDB]:
+    def get_all(self, player_filter: PlayerFilter) -> List[PlayerDB]:
         query: Query[PlayerDB] = self._session.query(PlayerDB)
+
+        if player_filter.first_name_contains is not None:
+            query = query.filter(
+                PlayerDB.first_name.ilike(player_filter.first_name_contains)
+            )
+
         return [
             Player(
-                name=f"{player.first_name} {player.last_name}",
+                first_name=player.first_name,
+                last_name=player.last_name,
                 height=player.height,
                 player_type=player.position,
             )
             for player in query
         ]
-
-    # def get(self, player_filter: PlayerFilter) -> List[Player]:
-    #     query = self._session.query(PlayerDB())
-
-    #     if player_filter.key_contains is not None:
-    #         query = query.filter(PlayerDB.key.contains(PlayerDB.key_contains))
-
-    #     if player_filter.value_contains is not None:
-    #         query = query.filter(PlayerDB.value.contains(PlayerDB.value_contains))
-
-    #     if player_filter.done is not None:
-    #         query = query.filter(PlayerDB.done == PlayerDB.done)
-
-    #     if player_filter.limit is not None:
-    #         query = query.limit(PlayerDB.limit)
-
-    #     return [Player()(key=todo.key, value=todo.value, done=todo.done) for todo in query]
 
 
 def create_player_repository() -> Iterator[PlayerRepository]:

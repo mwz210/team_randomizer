@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,10 +20,11 @@ class PlayerDB(SQL_BASE):
 
 
 class Player(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     height: float
     player_type: str
 
 
 class PlayerFilter(BaseModel):
-    pass
+    first_name_contains: Optional[str] = None
